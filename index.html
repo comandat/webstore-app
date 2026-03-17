@@ -23,23 +23,24 @@
             scrollbar-width: none;
         }
         
-        /* ====== LIQUID GLASS - INSPIRAT DIN REPO (TEMA DESCHISĂ) ====== */
+        /* ====== LIQUID GLASS - TEMA DESCHISĂ ====== */
         .liquid-glass {
-            /* Tint subtil din repo (0.06 opacitate pe alb) */
+            /* Tint subtil din repo */
             background: rgba(255, 255, 255, 0.06);
             
-            /* Blur mai mic (6px) dar existent, plus extra saturație */
+            /* Fallback pentru browsere ce nu suportă SVG filter: Blur clasic de 6px */
             -webkit-backdrop-filter: blur(6px) saturate(1.4);
             backdrop-filter: blur(6px) saturate(1.4);
             
             /* Contur foarte fin */
             border: 1px solid rgba(255, 255, 255, 0.2);
             
-            /* Magic-ul din repo: Inner shadow pentru volum + Outer shadow */
+            /* Inner shadow pentru volum (lentilă groasă) + Outer shadow */
             box-shadow: 
                 inset 0 0 20px -5px rgba(255, 255, 255, 0.45),
                 0 4px 24px rgba(0, 0, 0, 0.12);
             
+            /* Tranziții lente și fluide între culori și umbre */
             transition: background 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
         }
 
@@ -47,12 +48,12 @@
             transition: color 0.4s ease, text-shadow 0.4s ease;
         }
 
-        /* Suport pentru refracția cu filtru SVG (dacă este pe Chrome) */
+        /* ====== SUPORT SVG PENTRU REFRACȚIE + NOISE ====== */
         @supports (backdrop-filter: url(#liquid-glass-refraction)) {
             .liquid-glass {
-                /* Combinăm harta de refracție cu un blur redus la 4px */
-                -webkit-backdrop-filter: url(#liquid-glass-refraction) blur(4px) saturate(1.4);
-                backdrop-filter: url(#liquid-glass-refraction) blur(4px) saturate(1.4);
+                /* Când avem noise aplicat via SVG, scădem blur-ul standard la doar 2px */
+                -webkit-backdrop-filter: url(#liquid-glass-refraction) blur(2px) saturate(1.5);
+                backdrop-filter: url(#liquid-glass-refraction) blur(2px) saturate(1.5);
             }
         }
 
@@ -63,11 +64,11 @@
                 0 6px 32px rgba(0, 0, 0, 0.15);
         }
 
-        /* ====== LIQUID GLASS - TEMA ÎNTUNECATĂ (Când e pe fundal negru) ====== */
+        /* ====== LIQUID GLASS - TEMA ÎNTUNECATĂ (Pe fundal negru) ====== */
         .liquid-glass.dark-mode {
-            background: rgba(20, 20, 22, 0.2);
+            background: rgba(20, 20, 22, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            /* Modificăm umbra interioară pentru a arăta bine pe fundal închis */
+            /* Umbră interioară mai subtilă pentru a se potrivi în dark mode */
             box-shadow: 
                 inset 0 0 20px -5px rgba(255, 255, 255, 0.15),
                 inset 0 0 10px -2px rgba(0, 0, 0, 0.5),
@@ -75,13 +76,13 @@
         }
 
         .liquid-glass.dark-mode:hover {
-            background: rgba(30, 30, 35, 0.3);
+            background: rgba(30, 30, 35, 0.4);
             box-shadow: 
                 inset 0 0 25px -4px rgba(255, 255, 255, 0.25),
                 0 6px 32px rgba(0, 0, 0, 0.5);
         }
 
-        /* Schimbarea culorii iconițelor */
+        /* Inversăm culorile iconițelor gri în albe pentru vizibilitate maximă */
         .liquid-glass.dark-mode .text-gray-500,
         .liquid-glass.dark-mode .text-gray-600 {
             color: rgba(255, 255, 255, 0.8) !important;
@@ -90,9 +91,8 @@
         .liquid-glass.dark-mode .hover\:text-gray-800:hover,
         .liquid-glass.dark-mode .hover\:text-gray-900:hover {
             color: #ffffff !important;
-            text-shadow: 0 0 8px rgba(255,255,255,0.4);
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
         }
-        /* ========================================================== */
 
         .category-pill {
             background: rgba(31, 41, 55, 0.85);
@@ -107,10 +107,19 @@
     </style>
 </head>
 <body class="pb-28">
+
     <svg style="display: none;" aria-hidden="true">
       <filter id="liquid-glass-refraction" x="-20%" y="-20%" width="140%" height="140%">
-        <feImage href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='256' height='256'><defs><radialGradient id='rg' cx='50%' cy='50%' r='50%'><stop offset='0%' stop-color='rgb(128,128,0)'/><stop offset='100%' stop-color='rgb(255,128,0)'/></radialGradient></defs><rect width='100%' height='100%' fill='url(%23rg)'/></svg>" result="displacement-map" />
-        <feDisplacementMap in="SourceGraphic" in2="displacement-map" scale="12" xChannelSelector="R" yChannelSelector="G" result="refracted" />
+        
+        <feTurbulence type="fractalNoise" baseFrequency="0.008 0.008" numOctaves="2" seed="92" result="noise" />
+        <feGaussianBlur in="noise" stdDeviation="1.5" result="blurred-noise" />
+        
+        <feImage href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='256' height='256'><defs><radialGradient id='rg' cx='50%' cy='50%' r='50%'><stop offset='0%' stop-color='rgb(128,128,0)'/><stop offset='100%' stop-color='rgb(255,128,0)'/></radialGradient></defs><rect width='100%' height='100%' fill='url(%23rg)'/></svg>" result="lens-map" />
+        
+        <feDisplacementMap in="SourceGraphic" in2="lens-map" scale="12" xChannelSelector="R" yChannelSelector="G" result="lens-distorted" />
+        
+        <feDisplacementMap in="lens-distorted" in2="blurred-noise" scale="45" xChannelSelector="R" yChannelSelector="G" result="final" />
+        
       </filter>
     </svg>
 
@@ -124,6 +133,11 @@
                 <p class="text-white/90 text-sm mb-4">Până la -50% la electronice</p>
                 <button class="bg-white text-gray-900 text-xs font-bold px-5 py-2 rounded-full w-max shadow-lg">Vezi ofertele</button>
             </div>
+            <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-1.5">
+                <div class="w-5 h-1.5 bg-white rounded-full"></div>
+                <div class="w-1.5 h-1.5 bg-white/40 rounded-full"></div>
+                <div class="w-1.5 h-1.5 bg-white/40 rounded-full"></div>
+            </div>
         </section>
 
         <section class="mt-4">
@@ -132,6 +146,8 @@
                 <div class="category-pill text-white px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap border border-white/10">Fashion</div>
                 <div class="category-pill text-white px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap border border-white/10">Casă & Grădină</div>
                 <div class="category-pill text-white px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap border border-white/10">Gaming</div>
+                <div class="category-pill text-white px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap border border-white/10">Auto</div>
+                <div class="category-pill text-white px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap border border-white/10">Sport</div>
             </div>
         </section>
 
@@ -144,8 +160,13 @@
                     </div>
                     <div class="space-y-1">
                         <h4 class="text-[13px] font-semibold text-gray-800 line-clamp-2 leading-snug">Smartwatch Seria 8, GPS, Aluminiu</h4>
+                        <div class="flex items-center space-x-1">
+                            <span class="material-symbols-outlined text-yellow-400 text-[14px] fill-1">star</span>
+                            <span class="text-[11px] text-gray-400">4.8 (120)</span>
+                        </div>
                         <div class="pt-1 flex items-center justify-between">
                             <span class="text-[15px] font-bold text-[var(--green-custom)]">1.299 Lei</span>
+                            <span class="text-[11px] text-gray-300 line-through">1.500 Lei</span>
                         </div>
                     </div>
                 </div>
@@ -156,15 +177,51 @@
                     </div>
                     <div class="space-y-1">
                         <h4 class="text-[13px] font-semibold text-gray-800 line-clamp-2 leading-snug">Căști Wireless Noise Cancelling</h4>
+                        <div class="flex items-center space-x-1">
+                            <span class="material-symbols-outlined text-yellow-400 text-[14px] fill-1">star</span>
+                            <span class="text-[11px] text-gray-400">4.9 (85)</span>
+                        </div>
                         <div class="pt-1 flex items-center justify-between">
                             <span class="text-[15px] font-bold text-[var(--green-custom)]">890 Lei</span>
                         </div>
                     </div>
                 </div>
+                <div class="bg-white rounded-[20px] p-3 shadow-sm border border-gray-100 relative">
+                    <div class="aspect-square bg-[#F3F4F6] rounded-[14px] mb-3 overflow-hidden">
+                        <img alt="Troller" class="w-full h-full object-cover mix-blend-multiply" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1bRVHmFOXScWGBv67BkJBjUjPVB_zr82RCueXsJXbCxOu526Qv9Rw9DPx9mmg4NHZPNVhTADNV-t0x-JtKTHwsRmg00dSWzUBTnqAjP64EybG0_dAAFWNGycWPAn9urngWCS4zh5rT9P-f5WbVwjMhCT-pNezUaoU7vVW9Q9Sha3ZAdLVm051fESjaFJ3D3anIbBOfiZMR851h2kfVm1K1F7k0JQVGZXoYenKCNyFJBvur6xsxiYhQVjsZa12H5vwehbSfTQoe2MF"/>
+                    </div>
+                    <div class="space-y-1">
+                        <h4 class="text-[13px] font-semibold text-gray-800 line-clamp-2 leading-snug">Troller Cabină ABS, 55 cm, Gri</h4>
+                        <div class="flex items-center space-x-1">
+                            <span class="material-symbols-outlined text-yellow-400 text-[14px] fill-1">star</span>
+                            <span class="text-[11px] text-gray-400">4.5 (42)</span>
+                        </div>
+                        <div class="pt-1 flex items-center justify-between">
+                            <span class="text-[15px] font-bold text-[var(--green-custom)]">189 Lei</span>
+                            <span class="text-[11px] text-gray-300 line-through">250 Lei</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-[20px] p-3 shadow-sm border border-gray-100 relative">
+                    <div class="aspect-square bg-[#F3F4F6] rounded-[14px] mb-3 overflow-hidden">
+                        <img alt="Sneakers" class="w-full h-full object-cover mix-blend-multiply" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqHcdxb1i0dlzFlpSLxI1rlJvhV6kYZ-LqkM-jHdXfDExB2wmb-XHzokokpS7T2D50ueFGzo40JLviACzLB87VN4tBj6YjpF4h6rwmYLEUc3b0fxh3QYvCqiGDAWnmyXJ5Jdy0jl4etD7GDla4p4d1VqObao77J-5lY9iirOgojmH--QPfEJy8soG1UsZsm2QfJdB4347xq9hyAsrKErhnAItqbN0wNUiZ9Sk9wlAr-26qBsWiu3Gr1xF0VkzSNmG89DPC7xYjBxDg"/>
+                    </div>
+                    <div class="space-y-1">
+                        <h4 class="text-[13px] font-semibold text-gray-800 line-clamp-2 leading-snug">Pantofi Sport Running pentru Bărbați</h4>
+                        <div class="flex items-center space-x-1">
+                            <span class="material-symbols-outlined text-yellow-400 text-[14px] fill-1">star</span>
+                            <span class="text-[11px] text-gray-400">4.7 (210)</span>
+                        </div>
+                        <div class="pt-1 flex items-center justify-between">
+                            <span class="text-[15px] font-bold text-[var(--green-custom)]">345 Lei</span>
+                        </div>
+                    </div>
+                </div>
             </div>
             
-            <div class="mt-12 p-10 bg-gray-900 rounded-[20px] h-64 flex items-center justify-center dark-section shadow-xl">
-                <h3 class="text-white text-center font-bold">Zonă Întunecată.<br/>(Pentru testarea tranziției meniului)</h3>
+            <div class="mt-12 p-10 bg-gray-900 rounded-[20px] h-64 flex flex-col items-center justify-center dark-section shadow-xl">
+                <span class="material-symbols-outlined text-white/50 text-5xl mb-4">dark_mode</span>
+                <h3 class="text-white text-center font-bold">Zonă Întunecată.<br/>Scroll aici pentru a vedea cum reacționează meniul!</h3>
             </div>
             <div class="h-64"></div>
         </section>
@@ -194,8 +251,11 @@
             const glassElements = document.querySelectorAll('.liquid-glass');
             
             const checkBackground = () => {
+                // Căutăm toate div-urile/section-urile cu clasa .dark-section
                 const darkSections = document.querySelectorAll('.dark-section');
                 const navRect = navContainer.getBoundingClientRect();
+                
+                // Punctul central de intersecție
                 const navCenterY = navRect.top + (navRect.height / 2);
                 let isOverDark = false;
                 
@@ -206,6 +266,7 @@
                     }
                 });
                 
+                // Comutăm clasa dark-mode
                 if (isOverDark) {
                     glassElements.forEach(el => el.classList.add('dark-mode'));
                 } else {
@@ -213,7 +274,10 @@
                 }
             };
 
+            // Apelăm funcția când dăm scroll
             window.addEventListener('scroll', checkBackground, { passive: true });
+            
+            // Apelăm o dată imediat la încărcare
             checkBackground();
         });
     </script>
