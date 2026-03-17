@@ -17,25 +17,23 @@
             
             /* Variabile pentru Liquid Glass (Tema Deschisă) */
             --glass-tint: 255, 255, 255;
-            --glass-opacity: 0.15;
+            --glass-opacity: 0.25; /* Crescut pentru a face sticla mai albă/solidă */
             --glass-shadow: rgba(0, 0, 0, 0.1);
-            --icon-color: #6b7280; /* text-gray-500 */
-            --icon-hover: #1f2937; /* text-gray-800 */
+            --icon-color: #000000; /* Iconițe complet negre */
+            --icon-hover: #000000; /* Rămân negre la hover pe fundal alb */
         }
         
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* ====== EXACT CSS-UL DIN REPO ADAPTAT ====== */
         .glass-container {
             position: relative;
             isolation: isolate;
-            border-radius: 64px; /* Forma de pastilă */
+            border-radius: 64px;
             box-shadow: 0px 8px 24px var(--glass-shadow);
             transition: box-shadow 0.4s ease;
         }
 
-        /* Stratul de culoare (Tint) și umbra interioară */
         .glass-container::before {
             content: '';
             position: absolute;
@@ -43,29 +41,26 @@
             z-index: -2;
             border-radius: inherit;
             background-color: rgba(var(--glass-tint), var(--glass-opacity));
-            /* Umbra interioară fină */
-            box-shadow: inset 0 0 20px -5px rgba(255, 255, 255, 0.4);
+            box-shadow: inset 0 0 20px -5px rgba(255, 255, 255, 0.5); /* Lumină interioară puțin mai puternică */
             transition: background-color 0.4s ease, box-shadow 0.4s ease;
         }
 
-        /* Stratul SVG care curbează fundalul (Backdrop Filter) */
         .glass-container::after {
             content: '';
             position: absolute;
             inset: 0;
             z-index: -1;
             border-radius: inherit;
-            /* Suport complet pentru filtrul generat matematic de JS */
             backdrop-filter: url(#liquid-glass-filter);
             -webkit-backdrop-filter: url(#liquid-glass-filter);
             isolation: isolate;
         }
 
-        /* Fallback pentru Firefox/Safari care nu suportă filtru SVG din URL */
         @supports not (backdrop-filter: url(#liquid-glass-filter)) {
             .glass-container::after {
-                backdrop-filter: blur(12px) saturate(1.5);
-                -webkit-backdrop-filter: blur(12px) saturate(1.5);
+                /* Blur crescut în fallback */
+                backdrop-filter: blur(16px) saturate(1.5);
+                -webkit-backdrop-filter: blur(16px) saturate(1.5);
                 border: 1px solid rgba(255,255,255,0.2);
             }
         }
@@ -73,14 +68,14 @@
         /* ====== TEMA ÎNTUNECATĂ LA SCROLL ====== */
         .dark-mode-active {
             --glass-tint: 20, 20, 22;
-            --glass-opacity: 0.4;
+            --glass-opacity: 0.55; /* Crescut pentru a face sticla mai neagră/solidă */
             --glass-shadow: rgba(0, 0, 0, 0.5);
-            --icon-color: rgba(255, 255, 255, 0.8);
+            --icon-color: rgba(255, 255, 255, 0.9); /* Iconițe albe */
             --icon-hover: #ffffff;
         }
         
         .dark-mode-active::before {
-            box-shadow: inset 0 0 20px -5px rgba(255, 255, 255, 0.1);
+            box-shadow: inset 0 0 20px -5px rgba(255, 255, 255, 0.15);
         }
 
         .glass-icon {
@@ -91,7 +86,7 @@
             color: var(--icon-hover);
         }
         .dark-mode-active .glass-icon:hover {
-            text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
         }
 
         .category-pill {
@@ -105,7 +100,7 @@
 
     <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position: absolute; overflow: hidden" color-interpolation-filters="sRGB">
         <filter id="liquid-glass-filter" x="0%" y="0%" width="100%" height="100%">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="0.8" result="blurred_source" />
+            <feGaussianBlur in="SourceGraphic" stdDeviation="1.5" result="blurred_source" />
             <feImage id="disp-map" href="" x="0" y="0" result="disp_map" />
             <feDisplacementMap in="blurred_source" in2="disp_map" scale="1" id="disp-scale" xChannelSelector="R" yChannelSelector="G" result="displaced" />
             <feColorMatrix in="displaced" type="saturate" values="2" result="displaced_sat" />
@@ -215,10 +210,8 @@
     </div>
 
     <script>
-        // Funcția din repo care descrie forma bombată a sticlei
         const surfaceHeight = (x) => Math.pow(1 - Math.pow(1 - x, 4), 0.25);
 
-        // Algoritmul Snell-Descartes care calculează cum cade lumina pe margini
         function calculateRefractionProfile(glassThickness, bezelWidth, heightFn, ior, samples = 128) {
             const eta = 1 / ior;
             function refract(nx, ny) {
@@ -243,7 +236,6 @@
             return profile;
         }
 
-        // Generatorul hărții de deformare adaptat la lățimea/înălțimea reală a div-ului!
         function generateDisplacementMap(w, h, radius, bezelWidth, profile, maxDisp) {
             const c = document.createElement('canvas');
             c.width = w; c.height = h;
@@ -279,7 +271,6 @@
             return c.toDataURL();
         }
 
-        // Generatorul pentru marginile strălucitoare (Highlights)
         function generateSpecularMap(w, h, radius, bezelWidth) {
             const angle = Math.PI / 3;
             const c = document.createElement('canvas');
@@ -317,21 +308,17 @@
             return c.toDataURL();
         }
 
-        // Aplicarea filtrelor pe elementele noastre
         function buildFilters() {
-            // Setări fizice ale sticlei (poți să le modifici dacă vrei marginile mai subțiri)
             const glassThick = 60, bezelW = 30, ior = 1.6, radius = 32;
             const profile = calculateRefractionProfile(glassThick, bezelW, surfaceHeight, ior);
             const maxDisp = Math.max(...Array.from(profile).map(Math.abs)) || 1;
 
-            // Măsurăm Navigația Principală (Pill-ul mare)
             const mainNav = document.getElementById('main-nav');
             if(mainNav.offsetWidth > 0) {
                 const w1 = mainNav.offsetWidth, h1 = mainNav.offsetHeight;
                 const dispMap1 = generateDisplacementMap(w1, h1, radius, bezelW, profile, maxDisp);
                 const specMap1 = generateSpecularMap(w1, h1, radius, bezelW * 1.5);
                 
-                // Injectăm în SVG (folosim dimensiunea Nav-ului mare ca referință deoarece e containerul principal care "face valuri")
                 document.getElementById('disp-map').setAttribute('href', dispMap1);
                 document.getElementById('disp-map').setAttribute('width', w1);
                 document.getElementById('disp-map').setAttribute('height', h1);
@@ -345,15 +332,12 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Construim lentila matematică perfectă imediat ce se încarcă pagina
             buildFilters();
             
-            // Re-calculăm dacă utilizatorul întoarce telefonul
             window.addEventListener('resize', () => {
                 setTimeout(buildFilters, 100);
             });
 
-            // SCRIPTUL PENTRU DETECTAREA DARK-MODE (Neschimbat, merge perfect)
             const navWrapper = document.getElementById('nav-wrapper');
             const glassElements = document.querySelectorAll('.glass-container');
             const checkBackground = () => {
