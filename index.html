@@ -23,22 +23,26 @@
             scrollbar-width: none;
         }
         
-        /* NOUA clasa Liquid Glass cu fallback-uri și efecte avansate */
+        /* ====== LIQUID GLASS - TEMA DE BAZĂ (DESCHISĂ) ====== */
         .liquid-glass {
             background: rgba(255, 255, 255, 0.15);
             -webkit-backdrop-filter: blur(16px) saturate(1.2);
             backdrop-filter: blur(16px) saturate(1.2);
             border: 1px solid rgba(255, 255, 255, 0.4);
-            /* Specular Highlights: lumini interioare pe margini si umbre subtile */
             box-shadow: 
                 inset 0 1.5px 2px rgba(255, 255, 255, 0.8),
                 inset 0 -1.5px 2px rgba(255, 255, 255, 0.3),
-                0 8px 32px rgba(0, 0, 0, 0.12),
-                0 2px 8px rgba(0, 0, 0, 0.08);
-            transition: background 0.3s ease, box-shadow 0.3s ease;
+                0 8px 32px rgba(0, 0, 0, 0.12);
+            
+            /* Adăugăm tranziții lente și fine pentru schimbarea culorilor */
+            transition: background 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
         }
 
-        /* Daca browserul suporta filtru SVG din URL (ex: Chrome, Edge), aplicam refractia */
+        /* Setăm o tranziție și pe iconițe ca să se schimbe lent din gri în alb */
+        .liquid-glass a, .liquid-glass span {
+            transition: color 0.4s ease;
+        }
+
         @supports (backdrop-filter: url(#liquid-glass-refraction)) {
             .liquid-glass {
                 -webkit-backdrop-filter: url(#liquid-glass-refraction) blur(8px) saturate(1.2);
@@ -53,6 +57,32 @@
                 inset 0 -1.5px 2px rgba(255, 255, 255, 0.4),
                 0 12px 40px rgba(0, 0, 0, 0.15);
         }
+
+        /* ====== LIQUID GLASS - TEMA ÎNTUNECATĂ (Când e pe fundal negru) ====== */
+        .liquid-glass.dark-mode {
+            background: rgba(30, 30, 30, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 
+                inset 0 1px 1px rgba(255, 255, 255, 0.15),
+                inset 0 -1px 1px rgba(0, 0, 0, 0.4),
+                0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .liquid-glass.dark-mode:hover {
+            background: rgba(30, 30, 30, 0.6);
+        }
+
+        /* Forțăm iconițele gri să devină albe în modul dark */
+        .liquid-glass.dark-mode .text-gray-500,
+        .liquid-glass.dark-mode .text-gray-600 {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        .liquid-glass.dark-mode .hover\:text-gray-800:hover,
+        .liquid-glass.dark-mode .hover\:text-gray-900:hover {
+            color: #ffffff !important;
+        }
+        /* ========================================================== */
 
         .category-pill {
             background: rgba(31, 41, 55, 0.85);
@@ -77,7 +107,7 @@
     <div class="h-[44px] w-full"></div>
     
     <main>
-        <section class="relative w-full h-52 overflow-hidden">
+        <section class="relative w-full h-52 overflow-hidden dark-section">
             <img alt="Banner Promo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDCgBAR3XW4MBC1qwT2lsiCMXGmvfACHiYx_jfK7NbLj0jB2YWo5-nt_V9H04BSxEPwDjhrWZKhHUxSBVwZLQd-C8IqOMeYEQygi5yLd7WjsZZsf53M5z7ivyN9-vaUZ8A5YSBbNbWltKOnKTu5ZHZqLQgjtBZjFenGuuHUlHoI0lIJ0WkUcLUaqXXq1NdKjaOp149qTQxaXRdZzlq3Z2Cg5JfZ4OXGE_kPDDWBLPXLEZ5fOrVK6egzq8Sp-cHoqF0dHxPhx1OK-mrc"/>
             <div class="absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-transparent flex flex-col justify-center px-6">
                 <h2 class="text-white font-bold text-2xl mb-1">Mega Reduceri</h2>
@@ -92,8 +122,6 @@
                 <div class="category-pill text-white px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap border border-white/10">Fashion</div>
                 <div class="category-pill text-white px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap border border-white/10">Casă & Grădină</div>
                 <div class="category-pill text-white px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap border border-white/10">Gaming</div>
-                <div class="category-pill text-white px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap border border-white/10">Auto</div>
-                <div class="category-pill text-white px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap border border-white/10">Sport</div>
             </div>
         </section>
 
@@ -112,62 +140,18 @@
                         </div>
                         <div class="pt-1 flex items-center justify-between">
                             <span class="text-[15px] font-bold text-[var(--green-custom)]">1.299 Lei</span>
-                            <span class="text-[11px] text-gray-300 line-through">1.500 Lei</span>
                         </div>
                     </div>
                 </div>
-                <div class="bg-white rounded-[20px] p-3 shadow-sm border border-gray-100 relative">
-                    <div class="absolute top-2 left-2 z-10 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full"> -20% </div>
-                    <div class="aspect-square bg-[#F3F4F6] rounded-[14px] mb-3 overflow-hidden">
-                        <img alt="Casti Audio" class="w-full h-full object-cover mix-blend-multiply" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQzrLnYR84F0JtLTA8JvH3p8KyGZ529bsm6M6Ry9zHcxZMNl2LVffCOYJiKh5jCxi7XEF-bZeymBlc19dgzYUBVgcG0kEf8KLuYqgWujU_MLMj7L-qL5_L_xntKPF7dEizHH6HeLX2Jm8KpunqJ31KmO8QI6aTMgWnbqHEogokg64OoKZzIoxA36x-QiHmhCA_uBFOj76HDqrMoB9eXkcWR8IO0ZKe0kiUHNPCqZIRwAa0_ir8rILOzxeQc1eofte6uqcazpNDBQcx"/>
-                    </div>
-                    <div class="space-y-1">
-                        <h4 class="text-[13px] font-semibold text-gray-800 line-clamp-2 leading-snug">Căști Wireless Noise Cancelling</h4>
-                        <div class="flex items-center space-x-1">
-                            <span class="material-symbols-outlined text-yellow-400 text-[14px] fill-1">star</span>
-                            <span class="text-[11px] text-gray-400">4.9 (85)</span>
-                        </div>
-                        <div class="pt-1 flex items-center justify-between">
-                            <span class="text-[15px] font-bold text-[var(--green-custom)]">890 Lei</span>
-                        </div>
-                    </div>
                 </div>
-                <div class="bg-white rounded-[20px] p-3 shadow-sm border border-gray-100 relative">
-                    <div class="aspect-square bg-[#F3F4F6] rounded-[14px] mb-3 overflow-hidden">
-                        <img alt="Troller" class="w-full h-full object-cover mix-blend-multiply" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1bRVHmFOXScWGBv67BkJBjUjPVB_zr82RCueXsJXbCxOu526Qv9Rw9DPx9mmg4NHZPNVhTADNV-t0x-JtKTHwsRmg00dSWzUBTnqAjP64EybG0_dAAFWNGycWPAn9urngWCS4zh5rT9P-f5WbVwjMhCT-pNezUaoU7vVW9Q9Sha3ZAdLVm051fESjaFJ3D3anIbBOfiZMR851h2kfVm1K1F7k0JQVGZXoYenKCNyFJBvur6xsxiYhQVjsZa12H5vwehbSfTQoe2MF"/>
-                    </div>
-                    <div class="space-y-1">
-                        <h4 class="text-[13px] font-semibold text-gray-800 line-clamp-2 leading-snug">Troller Cabină ABS, 55 cm, Gri</h4>
-                        <div class="flex items-center space-x-1">
-                            <span class="material-symbols-outlined text-yellow-400 text-[14px] fill-1">star</span>
-                            <span class="text-[11px] text-gray-400">4.5 (42)</span>
-                        </div>
-                        <div class="pt-1 flex items-center justify-between">
-                            <span class="text-[15px] font-bold text-[var(--green-custom)]">189 Lei</span>
-                            <span class="text-[11px] text-gray-300 line-through">250 Lei</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white rounded-[20px] p-3 shadow-sm border border-gray-100 relative">
-                    <div class="aspect-square bg-[#F3F4F6] rounded-[14px] mb-3 overflow-hidden">
-                        <img alt="Sneakers" class="w-full h-full object-cover mix-blend-multiply" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqHcdxb1i0dlzFlpSLxI1rlJvhV6kYZ-LqkM-jHdXfDExB2wmb-XHzokokpS7T2D50ueFGzo40JLviACzLB87VN4tBj6YjpF4h6rwmYLEUc3b0fxh3QYvCqiGDAWnmyXJ5Jdy0jl4etD7GDla4p4d1VqObao77J-5lY9iirOgojmH--QPfEJy8soG1UsZsm2QfJdB4347xq9hyAsrKErhnAItqbN0wNUiZ9Sk9wlAr-26qBsWiu3Gr1xF0VkzSNmG89DPC7xYjBxDg"/>
-                    </div>
-                    <div class="space-y-1">
-                        <h4 class="text-[13px] font-semibold text-gray-800 line-clamp-2 leading-snug">Pantofi Sport Running pentru Bărbați</h4>
-                        <div class="flex items-center space-x-1">
-                            <span class="material-symbols-outlined text-yellow-400 text-[14px] fill-1">star</span>
-                            <span class="text-[11px] text-gray-400">4.7 (210)</span>
-                        </div>
-                        <div class="pt-1 flex items-center justify-between">
-                            <span class="text-[15px] font-bold text-[var(--green-custom)]">345 Lei</span>
-                        </div>
-                    </div>
-                </div>
+            
+            <div class="mt-20 p-10 bg-gray-900 rounded-[20px] h-64 flex items-center justify-center dark-section shadow-xl">
+                <h3 class="text-white text-center font-bold">Zonă Întunecată.<br/>Scroll aici pentru a vedea cum se transformă meniul!</h3>
             </div>
-        </section>
+            <div class="h-64"></div> </section>
     </main>
 
-    <div class="fixed bottom-8 left-0 right-0 z-50 px-5 flex items-center space-x-4">
+    <div id="nav-container" class="fixed bottom-8 left-0 right-0 z-50 px-5 flex items-center space-x-4">
         <nav class="flex-1 liquid-glass rounded-full h-[64px] flex justify-around items-center px-4">
             <a class="flex items-center justify-center text-[var(--green-custom)] w-12 h-12" href="#">
                 <span class="material-symbols-outlined" style="font-size: 28px; font-variation-settings: 'FILL' 1;">home</span>
@@ -184,5 +168,43 @@
             <span class="material-symbols-outlined" style="font-size: 28px;">search</span>
         </a>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navContainer = document.getElementById('nav-container');
+            const glassElements = document.querySelectorAll('.liquid-glass');
+            
+            const checkBackground = () => {
+                // Căutăm pe pagină toate zonele marcate ca fiind întunecate
+                const darkSections = document.querySelectorAll('.dark-section');
+                const navRect = navContainer.getBoundingClientRect();
+                
+                // Calculăm linia centrală a meniului pe ecran
+                const navCenterY = navRect.top + (navRect.height / 2);
+                let isOverDark = false;
+                
+                darkSections.forEach(section => {
+                    const rect = section.getBoundingClientRect();
+                    // Verificăm dacă meniul s-a suprapus cu axa Y a secțiunii dark
+                    if (navCenterY >= rect.top && navCenterY <= rect.bottom) {
+                        isOverDark = true;
+                    }
+                });
+                
+                // Dacă da, îi adăugăm clasa dark, dacă nu, i-o scoatem
+                if (isOverDark) {
+                    glassElements.forEach(el => el.classList.add('dark-mode'));
+                } else {
+                    glassElements.forEach(el => el.classList.remove('dark-mode'));
+                }
+            };
+
+            // Rulează o dată la scroll
+            window.addEventListener('scroll', checkBackground, { passive: true });
+            
+            // Rulează o dată și la prima încărcare a paginii
+            checkBackground();
+        });
+    </script>
 </body>
 </html>
